@@ -62,6 +62,7 @@ export async function GET(request) {
     const {searchParams} = new URL(request.url);
     const selectedCountry = searchParams.get('id_country');
     const selectedSettlement = searchParams.get('settlement');
+    const selectedCampaign = searchParams.get('campaign_e');
 
     try {
         let query = db('gdb_rise_o2a_equipment').select(
@@ -72,20 +73,72 @@ export async function GET(request) {
             'barcode',
             'activedate',
             'inactiveda',
+            'campaign_s',
+            'campaign_e',
             'notes',
             db.raw('ST_AsGeoJSON(geom) AS geom')
         );
 
         // Filter berdasarkan country jika ada
         if (selectedCountry) {
-            console.log('Applying country filter:', selectedCountry);  // Debugging filter
             query = query.where('id_country', selectedCountry); // Menambahkan filter berdasarkan id_country
         }
     
         if (selectedSettlement) {
-            console.log('Applying country filter:', selectedSettlement);  // Debugging filter
             query = query.where('settlement', selectedSettlement); // Menambahkan filter berdasarkan id_country
         }
+
+        // Jika ada filter berdasarkan campaign
+        // if (selectedCampaign) {
+        //     console.log('Applying filter for campaign:', selectedCampaign);  // Log untuk debugging
+            
+        //     // Ambil rentang campaign_start dan campaign_end berdasarkan campaign yang dipilih
+        //     const campaignData = await db('gdb_rise_o2a_equipment')
+        //         .select('campaign_s', 'campaign_e')
+        //         .where('campaign_e', selectedCampaign)
+        //         .first();  // Mengambil satu baris data kampanye (karena campaign unik)
+
+        //     if (campaignData) {
+        //         const { campaign_s, campaign_e } = campaignData;
+        //         console.log('Campaign S:', campaign_s, 'Campaign E:', campaign_e);  // Log untuk debugging
+
+        //         // Cek apakah campaign_start dan campaign_end adalah tanggal
+        //         console.log('Type of campaign_s:', typeof campaign_s);
+        //         console.log('Type of campaign_e:', typeof campaign_e);
+
+        //         // Menambahkan filter untuk rentang campaign_start dan campaign_end
+        //         query = query
+        //             .andWhere(function() {
+        //                 this.where('campaign_s', '<=', selectedCampaign)  // campaign_s harus lebih kecil atau sama dengan selectedCampaign
+        //                     .andWhere('campaign_e', '>=', selectedCampaign);  // campaign_e harus lebih besar atau sama dengan selectedCampaign
+        //             });
+        //     } else {
+        //         // Jika campaign tidak ditemukan
+        //         console.log('No data found for campaign:', selectedCampaign);
+        //         return NextResponse.json({ error: 'Campaign not found' }, { status: 404 });
+        //     }
+        // }
+        if (selectedCampaign) {
+            console.log('Applying filter for campaign:', selectedCampaign);  // Log untuk debugging
+            
+            if (selectedCampaign === "0") {
+                // Jika selectedCampaign adalah 0, tampilkan data yang campaign_s = 0
+                query = query.andWhere(function() {
+                    this.where('campaign_s', '=', 0) // Pastikan campaign_s = 0
+                        .orWhere(function() {
+                            this.where('campaign_s', '<=', selectedCampaign)  // campaign_s harus lebih kecil atau sama dengan selectedCampaign
+                                .andWhere('campaign_e', '>=', selectedCampaign);  // campaign_e harus lebih besar atau sama dengan selectedCampaign
+                        });
+                });
+            } else {
+                // Jika selectedCampaign bukan 0, gunakan logika standar
+                query = query.andWhere(function() {
+                    this.where('campaign_s', '<=', selectedCampaign)  // campaign_s harus lebih kecil atau sama dengan selectedCampaign
+                        .andWhere('campaign_e', '>=', selectedCampaign);  // campaign_e harus lebih besar atau sama dengan selectedCampaign
+                });
+            }
+        }
+
 
         const result = await query;
         return NextResponse.json(result);

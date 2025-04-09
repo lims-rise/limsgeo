@@ -74,7 +74,7 @@ const thermochronIcon = new L.Icon({
 
 const hygrochronIcon = new L.Icon({
   iconUrl: '/icons/hygrochron.png',
-  iconSize: [25, 25],
+  iconSize: [20, 40],
   iconAnchor: [12.5, 12.5], 
   popupAnchor: [0, -32], 
 });
@@ -186,13 +186,16 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
       return queryParams;
     };
 
-    const buildQueryParams1 = (country, settlement) => {
+    const buildQueryParams1 = (country, settlement, campaign) => {
       const queryParams = new URLSearchParams();
       if (country && country.id_country) {
         queryParams.append('id_country', country.id_country);
       }
       if (settlement) {
         queryParams.append('settlement', settlement?.settlement);
+      }
+      if (campaign?.length > 0) {
+        queryParams.append('campaign_e', campaign.join(','));
       }
       return queryParams;
     };
@@ -268,7 +271,7 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
   
       const fetchObjectiveData = async () => {
         try {
-          const queryParams = buildQueryParams1(selectedCountry, selectedSettlement);
+          const queryParams = buildQueryParams1(selectedCountry, selectedSettlement, selectedCampaign);
   
           if (selectedObjective === 'objective_2a') {
             // Objective2a
@@ -718,6 +721,8 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
           pointid: equipment.pointid,
           activedate: equipment.activedate,
           inactiveda: equipment.inactiveda,
+          campaign_s: equipment.campaign_s,
+          campaign_e: equipment.campaign_e,
           equipment_ : equipment.equipment_,
           barcode : equipment.barcode,
           notes : equipment.notes,
@@ -1009,7 +1014,7 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
 
 
           {/* Menampilkan Point */}
-          {equipmentGeoJson.map(({geoJsonData, gid, name, pointid, equipment_, barcode, inactiveda, activedate, notes}) => (
+          {equipmentGeoJson.map(({geoJsonData, gid, name, pointid, equipment_, barcode, inactiveda, activedate, campaign_e, campaign_s, notes}) => (
             <React.Fragment key={gid}>
               <GeoJSON
                 data={geoJsonData}
@@ -1040,7 +1045,9 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
                           <li><strong>EQUIPMENT:</strong> ${equipment_}</li>
                           <li><strong>NOTES:</strong> ${notes}</li>
                           <li><strong>ACTIVE DATE:</strong> ${activedate}</li>
-                           <li><strong>INACTIVE DATE:</strong> ${inactiveda}</li>
+                          <li><strong>INACTIVE DATE:</strong> ${inactiveda}</li>
+                          <li><strong>CAMPAIGN START:</strong> ${campaign_s}</li>
+                          <li><strong>CAMPAIGN END:</strong> ${campaign_e}</li>
                         </ul>
                       `).openPopup();
                     },

@@ -483,7 +483,7 @@ function Sidebar() {
     </div>
     <div className="sidebar-container hidden sm:hidden md:block w-64 bg-gray-800 text-white p-4 shadow-lg max-h-screen overflow-y-auto">
       <RightSidebar
-          selectedSettlementRightSidebar ={selectedSettlement}
+          selectedSettlementRightSidebar={selectedSettlement}
           selectedObjectiveRightSidebar = {selectedObjective?.url_name}
           selectedCountryRightSidebar = {selectedCountry?.name}
       />
