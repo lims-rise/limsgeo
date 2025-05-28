@@ -759,7 +759,7 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
             maxZoom={19}
           />
           {geoJsonFeatures.map(({ geoJsonData, centroid, gid, id_map, id_building, hoid, houseno, settlement, status, structure, country, campaign, connected, note }) => (
-            <React.Fragment key={gid}>
+            <React.Fragment key={`${gid}-${status}-${id_map}`}>
               {/* GeoJSON Layer */}
               <GeoJSON
                 key={`${gid}-${status}`}
