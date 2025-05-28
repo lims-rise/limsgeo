@@ -6,6 +6,7 @@ export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const selectedCampaign = searchParams.get('campaign');
   const selectedCountry = searchParams.get('country');
+
   const selectedObjective = searchParams.get('objective'); // Mendapatkan nilai objective
   const selectedSettlement = searchParams.get('settlement');
   
@@ -49,7 +50,7 @@ export async function GET(request) {
     if (selectedObjective === 'objective_2a') {
       // Menambahkan filter berdasarkan country dan campaign pada query2
       if (selectedCountry) {
-        query2 = query2.where('gdb_rise.country', selectedCountry);
+        query2 = query2.where('gdb_rise_o2a.country', selectedCountry);
       }
 
       if (selectedCampaign) {
