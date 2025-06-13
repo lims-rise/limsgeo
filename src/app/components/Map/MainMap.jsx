@@ -38,62 +38,74 @@ const Spinner = styled.div`
 
 // Buat ikon kustom
 const inhouseIcon = new L.Icon({
-  iconUrl: '/icons/inhouse.png', // Path relatif ke public/ // Ganti dengan path ke gambar atau ikon Anda
-  iconSize: [32, 32], // Ukuran ikon (lebar, tinggi)
-  iconAnchor: [16, 16], // Titik anchor (tempat marker akan ditempatkan di peta)
-  popupAnchor: [0, -32], // Titik popup terkait dengan ikon (jarak dari ikon)
+  iconUrl: '/icons/inhouse.png',
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
+  popupAnchor: [0, -32],
 });
 
 const soilIcon = new L.Icon({
   iconUrl: '/icons/soil.png',
-  iconSize: [32, 32], 
-  iconAnchor: [16, 16],
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
   popupAnchor: [0, -32],
 });
 
 const waterIcon = new L.Icon({
-  iconUrl: '/icons/water.png', 
+  iconUrl: '/icons/water.png',
   iconSize: [32, 32],
-  iconAnchor: [16, 16],
+  iconAnchor: [16, 32],
   popupAnchor: [0, -32],
 });
 
 const wellIcon = new L.Icon({
   iconUrl: '/icons/well.png',
-  iconSize: [32, 32], 
-  iconAnchor: [16, 16],
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
   popupAnchor: [0, -32],
 });
 
 const thermochronIcon = new L.Icon({
   iconUrl: '/icons/thermochron.png',
-  iconSize: [20, 40], 
-  iconAnchor: [10, 20],
-  popupAnchor: [0, -32], 
+  iconSize: [20, 40],
+  iconAnchor: [10, 40],
+  popupAnchor: [0, -40],
 });
 
 const hygrochronIcon = new L.Icon({
   iconUrl: '/icons/hygrochron.png',
   iconSize: [20, 40],
-  iconAnchor: [12.5, 12.5], 
-  popupAnchor: [0, -32], 
+  iconAnchor: [10, 40],
+  popupAnchor: [0, -40],
 });
 
 const raingaugeIcon = new L.Icon({
   iconUrl: '/icons/raingauge.png',
-  iconSize: [35, 35], 
-  iconAnchor: [17.5, 17.5], 
-  popupAnchor: [0, -32], 
+  iconSize: [35, 35],
+  iconAnchor: [17.5, 35],
+  popupAnchor: [0, -35],
+});
+
+const hoboIcon = new L.Icon({
+  iconUrl: '/icons/hobo.png',
+  iconSize: [32, 42],
+  iconAnchor: [16, 42],
+  popupAnchor: [0, -42],
+});
+
+const acousticIcon = new L.Icon({
+  iconUrl: '/icons/wildlife.png',
+  iconSize: [42, 32],
+  iconAnchor: [21, 32],
+  popupAnchor: [0, -32],
 });
 
 const defaultIcon = new L.Icon({
   iconUrl: '/icons/well.png',
-  iconSize: [32, 32], 
-  iconAnchor: [12, 12],
+  iconSize: [32, 32],
+  iconAnchor: [16, 32],
   popupAnchor: [0, -32],
 });
-
-
 
 
 
@@ -1027,6 +1039,12 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
                     icon = thermochronIcon;
                   } else if (equipment_ === 'Rain gauge') {
                     icon = raingaugeIcon;
+                  } else if (equipment_ === 'HOBO') {
+                    icon = hoboIcon;
+                  } else if (equipment_ === 'Acoustic') {
+                    icon = acousticIcon;
+                  } else if (equipment_ === 'Ultrasonic') {
+                    icon = acousticIcon;
                   } else {
                     icon = defaultIcon;  // Ganti dengan ikon default jika diperlukan
                   }

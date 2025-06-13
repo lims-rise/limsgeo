@@ -131,12 +131,24 @@ export async function GET(request) {
                         });
                 });
             } else {
-                // Jika selectedCampaign bukan 0, gunakan logika standar
-                query = query.andWhere(function() {
-                    this.where('campaign_s', '<=', selectedCampaign)  // campaign_s harus lebih kecil atau sama dengan selectedCampaign
-                        .andWhere('campaign_e', '>=', selectedCampaign);  // campaign_e harus lebih besar atau sama dengan selectedCampaign
+                query = query.andWhere(function () {
+                    // Pertahankan kondisi utama
+                    this.where(function () {
+                        this.where('campaign_s', '<=', selectedCampaign)
+                            .andWhere('campaign_e', '>=', selectedCampaign);
+                    })
+                    // Tambahkan kondisi tambahan: campaign_e = 0 atau NULL
+                    .orWhere(function () {
+                        this.where('campaign_s', '!=', 0)
+                        .andWhere('campaign_s', '<=', selectedCampaign)
+                            .andWhere(function () {
+                                this.where('campaign_e', '=', 0)
+                                    .orWhereNull('campaign_e');
+                            });
+                    });
                 });
             }
+            
         }
 
 
