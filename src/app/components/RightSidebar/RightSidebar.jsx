@@ -199,7 +199,8 @@ function RightSidebar({ selectedSettlementRightSidebar, selectedObjectiveRightSi
                       <InformationItem iconSrc="/icons/thermochron.png" label="Thermochron" iconSize={{ width: 20, height: 35 }} className="mr-2" />
                       <InformationItem iconSrc="/icons/hygrochron.png" label="Hygrochron" iconSize={{ width: 20, height: 30 }} className="mr-3 mt-2" />
                       <InformationItem iconSrc="/icons/raingauge.png" label="Raingauge" iconSize={{ width: 25, height: 40 }} className="mr-2 mt-1" />
-                      <InformationItem iconSrc="/icons/well.png" label="Ultrasonic" iconSize={{ width: 25, height: 40 }} className="mr-2 mt-1" />
+                      <InformationItem iconSrc="/icons/wildlife.png" label="Ultrasonic/Acoustic" iconSize={{ width: 25, height: 40 }} className="mr-2 mt-1" />
+                      <InformationItem iconSrc="/icons/hobo.png" label="Hobo" iconSize={{ width: 25, height: 40 }} className="mr-2 mt-1" />
                     </>
                   )}
                   {selectedObjectiveRightSidebar === "objective_2b" && (
