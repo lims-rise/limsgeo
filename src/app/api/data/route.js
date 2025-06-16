@@ -41,7 +41,7 @@ export async function GET(request) {
         'gdb_rise.country',
         'gdb_rise.campaign',
         'gdb_rise.connected',
-        'gdb_rise.note',
+        'gdb_rise_o2a.note',
         db.raw('ST_AsGeoJSON(gdb_rise.geom) AS geom') // kolom geom dari gdb_rise
       )
       .join('gdb_rise_o2a', 'gdb_rise.id_building', '=', 'gdb_rise_o2a.id_building'); // Join berdasarkan id_building
