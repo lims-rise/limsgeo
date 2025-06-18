@@ -722,8 +722,30 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
     }).filter(well => well !== null);
   }, [convertToWellGeoJSON, wellData]);
 
-  const equipmentGeoJson = useMemo(() => {
-    return equipmentData.map((equipment) => {
+  // const equipmentGeoJson = useMemo(() => {
+  //   return equipmentData.map((equipment) => {
+  //     if (equipment.geom) {
+  //       const geoJsonData = convertToEquipmentGeoJSON(equipment);
+  //       return {
+  //         geoJsonData,
+  //         gid: equipment.gid,
+  //         name: equipment.name,
+  //         pointid: equipment.pointid,
+  //         activedate: equipment.activedate,
+  //         inactiveda: equipment.inactiveda,
+  //         campaign_s: equipment.campaign_s,
+  //         campaign_e: equipment.campaign_e,
+  //         equipment_ : equipment.equipment_,
+  //         barcode : equipment.barcode,
+  //         notes : equipment.notes,
+
+  //       };
+  //     }
+  //     return null;
+  //   }).filter(equipment => equipment !== null);
+  // }, [convertToEquipmentGeoJSON, equipmentData]);
+  const groupedEquipmentByCoord = useMemo(() => {
+    const geoJsonList = equipmentData.map((equipment) => {
       if (equipment.geom) {
         const geoJsonData = convertToEquipmentGeoJSON(equipment);
         return {
@@ -735,16 +757,28 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
           inactiveda: equipment.inactiveda,
           campaign_s: equipment.campaign_s,
           campaign_e: equipment.campaign_e,
-          equipment_ : equipment.equipment_,
-          barcode : equipment.barcode,
-          notes : equipment.notes,
-
+          equipment_: equipment.equipment_,
+          barcode: equipment.barcode,
+          notes: equipment.notes,
         };
       }
       return null;
-    }).filter(equipment => equipment !== null);
-  }, [convertToEquipmentGeoJSON, equipmentData]);
-
+    }).filter(item => item !== null);
+  
+    // 🔁 Group berdasarkan koordinat
+    const grouped = {};
+    geoJsonList.forEach(item => {
+      const coordinates = item.geoJsonData.coordinates;
+      const key = `${coordinates[1].toFixed(6)},${coordinates[0].toFixed(6)}`; // lat, lng
+      if (!grouped[key]) {
+        grouped[key] = [];
+      }
+      grouped[key].push(item);
+    });
+  
+    return grouped;
+  }, [convertToEquipmentGeoJSON, equipmentData]); // atau tambahkan convertToEquipmentGeoJSON jika tidak inline
+  
 
     console.log('data center', center);
     console.log('data zoom', zoom);
@@ -1024,9 +1058,8 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
             </React.Fragment>
           ))}
 
-
           {/* Menampilkan Point */}
-          {equipmentGeoJson.map(({geoJsonData, gid, name, pointid, equipment_, barcode, inactiveda, activedate, campaign_e, campaign_s, notes}) => (
+          {/* {equipmentGeoJson.map(({geoJsonData, gid, name, pointid, equipment_, barcode, inactiveda, activedate, campaign_e, campaign_s, notes}) => (
             <React.Fragment key={gid}>
               <GeoJSON
                 data={geoJsonData}
@@ -1076,10 +1109,64 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
                 }}
               />
             </React.Fragment>
-          ))}
+          ))} */}
+          {Object.entries(groupedEquipmentByCoord).map(([coordKey, equipments], index) => {
+            const [lat, lng] = coordKey.split(',').map(Number);
+            const firstEquipment = equipments[0];
 
+            let icon;
+            switch (firstEquipment.equipment_) {
+              case 'Hygrochron': icon = hygrochronIcon; break;
+              case 'Thermochron': icon = thermochronIcon; break;
+              case 'Rain gauge': icon = raingaugeIcon; break;
+              case 'HOBO': icon = hoboIcon; break;
+              case 'Acoustic':
+              case 'Ultrasonic': icon = acousticIcon; break;
+              default: icon = defaultIcon;
+            }
 
-          </MapContainer>
+            const popupContent = equipments.map(eq => `
+              <ul style="margin-bottom:8px; padding:8px;">
+                <li><strong>GID:</strong> ${eq.gid}</li>
+                <li><strong>POINTID:</strong> ${eq.pointid}</li>
+                <li><strong>BARCODE:</strong> ${eq.barcode}</li>
+                <li><strong>NAME:</strong> ${eq.name}</li>
+                <li><strong>EQUIPMENT:</strong> ${eq.equipment_}</li>
+                <li><strong>NOTES:</strong> ${eq.notes}</li>
+                <li><strong>ACTIVE DATE:</strong> ${eq.activedate}</li>
+                <li><strong>INACTIVE DATE:</strong> ${eq.inactiveda}</li>
+                <li><strong>CAMPAIGN START:</strong> ${eq.campaign_s}</li>
+                <li><strong>CAMPAIGN END:</strong> ${eq.campaign_e}</li>
+              </ul>
+              <hr/>
+            `).join('');
+
+            return (
+              <GeoJSON
+                key={index}
+                data={{
+                  type: "Feature",
+                  geometry: {
+                    type: "Point",
+                    coordinates: [lng, lat]
+                  }
+                }}
+                pointToLayer={(_, latlng) => L.marker(latlng, { icon })}
+                onEachFeature={(_, layer) => {
+                  // layer.bindPopup(popupContent);
+                  layer.on({
+                    mousemove: () => {
+                      layer.bindPopup(popupContent).openPopup();
+                    },
+                    mouseout: () => {
+                      layer.closePopup();
+                    }
+                  });
+                }}
+              />
+            );
+          })}
+        </MapContainer>
     </div>
     );
 
