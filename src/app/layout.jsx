@@ -15,7 +15,7 @@ const geistMono = localFont({
 });
 
 export const metadata = {
-  title: "Map Visualization",
+  title: "GeoMap",
   description: "Rise data visualization",
 };
 
