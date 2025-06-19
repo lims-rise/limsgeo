@@ -25,6 +25,7 @@ export async function GET(request) {
       'campaign',
       'connected',
       'note',
+      'geom',
       db.raw('ST_AsGeoJSON(geom) AS geom')
     );
 

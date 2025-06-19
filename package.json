@@ -19,8 +19,10 @@
   "dependencies": {
     "@azure/app-configuration": "^1.7.0",
     "@azure/keyvault-secrets": "^4.9.0",
+    "@turf/centroid": "^7.2.0",
     "better-sqlite3": "^11.5.0",
     "font-awesome": "^4.7.0",
+    "framer-motion": "^12.18.1",
     "knex": "^3.1.0",
     "leaflet": "^1.9.4",
     "mysql": "^2.18.1",

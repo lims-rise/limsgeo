@@ -617,7 +617,8 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
               country: item.country,
               campaign: item.campaign,
               connected: item.connected,
-              note: item.note
+              note: item.note,
+              geom: item.geom,
             };
           }
           return null;
