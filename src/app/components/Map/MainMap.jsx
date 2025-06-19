@@ -6,6 +6,9 @@ import styled from 'styled-components';
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import proj4 from "proj4";
+import EquipmentPopup from "../EquipmentPopup/EquipmentPopup";
+import GeoJsonLayer from "../GeoJsonLayer/GeoJsonLayer";
+import BuildingLayer from "../BuildingLayer/BuildingLayer";
 
 // Styling untuk overlay blur
 const Overlay = styled.div`
@@ -629,7 +632,7 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
             return {
             geoJsonData,
             gid: boundary.gid,
-            name: boundary.name,
+            township: boundary.name,
             };
         }
         return null;
@@ -643,7 +646,7 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
             return {
             geoJsonData,
             gid: access.gid,
-            fid_: access.fid_,
+            township: access.fid_,
             };
         }
         return null;
@@ -804,64 +807,14 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
             url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
             maxZoom={19}
           />
-          {geoJsonFeatures.map(({ geoJsonData, centroid, gid, id_map, id_building, hoid, houseno, settlement, status, structure, country, campaign, connected, note }) => (
-            <React.Fragment key={`${gid}-${status}-${id_map}`}>
-              {/* GeoJSON Layer */}
-              <GeoJSON
-                key={`${gid}-${status}`}
-                data={geoJsonData}
-                style={() => ({
-                  fillColor: getColorByStatus(status),  // Menentukan warna berdasarkan status
-                  weight: 1,
-                  weight: 2,
-                  opacity: 1,
-                  color: 'white',
-                  dashArray: '3',
-                  fillOpacity: 1
-                })}
-                onEachFeature={(feature, layer) => {
-                  layer.on({
-                    mouseover: () => {
-                      layer.bindPopup(`  
-                        <h2 style="font-size: 18px; font-weight: bold;">Building Information</h2>
-                        <ul>
-                          <li><strong>Structure:</strong> ${structure}</li>
-                          <li><strong>House Number:</strong> ${houseno}</li>
-                          <li><strong>GID:</strong> ${gid}</li>
-                          <li><strong>House ID:</strong> ${hoid}</li>
-                          <li><strong>Settlement:</strong> ${settlement}</li>
-                          <li><strong>Building ID:</strong> ${id_building}</li>
-                          <li><strong>Country:</strong> ${country}</li>
-                          <li><strong>Campaign:</strong> ${campaign}</li>
-                          <li><strong>Connected:</strong> ${connected}</li>
-                          <li><strong>Note:</strong> ${note}</li>
-                          <li><strong>Status:</strong> ${status}</li>
-                          <li><strong>Map ID:</strong> ${id_map}</li>
-                        </ul>
-                      `).openPopup();
-                    },
-                    mouseout: () => {
-                      layer.closePopup();
-                    }
-                  });
-                }}
-              >
-                {/* Tooltip menggunakan react-leaflet, dengan posisi di centroid */}
-                <Tooltip
-                  permanent = "true"
-                  direction="center"
-                  offset={[0, 0]} // Menempatkan tooltip di tengah
-                  className="custom-tooltip"
-                  position={centroid} // Menggunakan centroid sebagai posisi tooltip
-                >
-                  {houseno}
-                </Tooltip>
-              </GeoJSON>
-            </React.Fragment>
-          ))}
+
+          <BuildingLayer
+              features={geoJsonFeatures}
+              getColorByStatus={getColorByStatus}
+          />
           
           {/* Menampilkan MultiLineString */}
-              {boundaryGeoJson.map(({ geoJsonData, gid, name }) => (
+          {/* {boundaryGeoJson.map(({ geoJsonData, gid, name }) => (
               <React.Fragment key={gid}>
                       <GeoJSON
                       data={geoJsonData}
@@ -887,10 +840,10 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
                       }}
                   />
               </React.Fragment>
-              ))}
+          ))} */}
 
           {/* Menampilkan MultiLineString */}
-              {accessGeoJson.map(({ geoJsonData, gid, fid_ }) => (
+          {/* {accessGeoJson.map(({ geoJsonData, gid, fid_ }) => (
               <React.Fragment key={gid}>
                   <GeoJSON
                       data={geoJsonData}
@@ -916,10 +869,10 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
                       }}              
                   />
               </React.Fragment>
-              ))}
+          ))} */}
 
-              {/* Menampilkan MultiLineString */}
-              {bootscokGeoJson.map(({ geoJsonData, gid, township }) => (
+          {/* Menampilkan MultiLineString */}
+          {/* {bootscokGeoJson.map(({ geoJsonData, gid, township }) => (
               <React.Fragment key={gid}>
                   <GeoJSON
                       data={geoJsonData}
@@ -945,10 +898,10 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
                       }}              
                   />
               </React.Fragment>
-              ))}
+          ))} */}
 
-            {/* Menampilkan Point */}
-            {inhousewaterGeoJson.map(({ geoJsonData, gid, township }) => (
+          {/* Menampilkan Point */}
+          {/* {inhousewaterGeoJson.map(({ geoJsonData, gid, township }) => (
               <React.Fragment key={gid}>
                   <GeoJSON
                       data={geoJsonData}
@@ -973,10 +926,10 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
                       }}
                   />
               </React.Fragment>
-          ))}
+          ))} */}
 
           {/* Menampilkan Point */}
-          {soilGeoJson.map(({geoJsonData, gid, township}) => (
+          {/* {soilGeoJson.map(({geoJsonData, gid, township}) => (
             <React.Fragment key={gid}>
               <GeoJSON
                 data={geoJsonData}
@@ -1000,10 +953,10 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
                 }}
               />
             </React.Fragment>
-          ))}
+          ))} */}
 
           {/* Menampilkan Point */}
-          {waterGeoJson.map(({geoJsonData, gid, id, township}) => (
+          {/* {waterGeoJson.map(({geoJsonData, gid, id, township}) => (
             <React.Fragment key={gid}>
               <GeoJSON
                 data={geoJsonData}
@@ -1028,10 +981,10 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
                 }}
               />
             </React.Fragment>
-          ))}
+          ))} */}
 
           {/* Menampilkan Point */}
-          {wellGeoJson.map(({geoJsonData, gid, id, township}) => (
+          {/* {wellGeoJson.map(({geoJsonData, gid, id, township}) => (
             <React.Fragment key={gid}>
               <GeoJSON
                 data={geoJsonData}
@@ -1056,7 +1009,47 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
                 }}
               />
             </React.Fragment>
-          ))}
+          ))} */}
+
+          {/* 1. Menampilkan MultiLineString Bootscok */}
+          <GeoJsonLayer
+            items={boundaryGeoJson}
+            style={() => ({
+              color: '#FF6347',
+              weight: 3,
+              opacity: 1,
+            })}
+          />
+
+          <GeoJsonLayer
+            items={accessGeoJson}
+            style={() => ({
+              color: '#006BFF',
+              weight: 3,
+              opacity: 1,
+            })}
+          />
+
+          <GeoJsonLayer
+            items={bootscokGeoJson}
+            style={() => ({
+              color: '#FF067F',
+              weight: 3,
+              opacity: 1,
+            })}
+          />
+
+          {/* 2. Menampilkan Point Inhouse Water */}
+          <GeoJsonLayer items={inhousewaterGeoJson} icon={inhouseIcon} />
+
+          {/* 3. Menampilkan Point Soil */}
+          <GeoJsonLayer items={soilGeoJson} icon={soilIcon} />
+
+          {/* 4. Menampilkan Point Water */}
+          <GeoJsonLayer items={waterGeoJson} icon={waterIcon} />
+
+          {/* 5. Menampilkan Point Well */}
+          <GeoJsonLayer items={wellGeoJson} icon={wellIcon} />
 
           {/* Menampilkan Point */}
           {/* {equipmentGeoJson.map(({geoJsonData, gid, name, pointid, equipment_, barcode, inactiveda, activedate, campaign_e, campaign_s, notes}) => (
@@ -1110,7 +1103,7 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
               />
             </React.Fragment>
           ))} */}
-          {Object.entries(groupedEquipmentByCoord).map(([coordKey, equipments], index) => {
+          {/* {Object.entries(groupedEquipmentByCoord).map(([coordKey, equipments], index) => {
             const [lat, lng] = coordKey.split(',').map(Number);
             const firstEquipment = equipments[0];
 
@@ -1164,6 +1157,42 @@ const MainMap = ({ selectedCampaign, selectedCountry, selectedSettlement, select
                   });
                 }}
               />
+            );
+          })} */}
+          {Object.entries(groupedEquipmentByCoord).map(([coordKey, equipments]) => {
+            const [lat, lng] = coordKey.split(',').map(Number);
+            const firstEquipment = equipments[0];
+
+            let icon;
+            // ... (logika switch case Anda untuk icon tetap sama)
+            switch (firstEquipment.equipment_) {
+              case 'Hygrochron': icon = hygrochronIcon; break;
+              case 'Thermochron': icon = thermochronIcon; break;
+              case 'Rain gauge': icon = raingaugeIcon; break;
+              case 'HOBO': icon = hoboIcon; break;
+              case 'Acoustic':
+              case 'Ultrasonic': icon = acousticIcon; break;
+              default: icon = defaultIcon;
+            }
+
+            return (
+              <GeoJSON
+                key={coordKey} // Gunakan coordKey yang unik sebagai key
+                data={{
+                  type: "Feature",
+                  geometry: {
+                    type: "Point",
+                    coordinates: [lng, lat]
+                  }
+                }}
+                pointToLayer={(_, latlng) => L.marker(latlng, { icon })}
+              >
+                {/* Gunakan komponen Popup dari react-leaflet */}
+                <Popup>
+                  {/* Render komponen custom Anda di sini */}
+                  <EquipmentPopup equipments={equipments} />
+                </Popup>
+              </GeoJSON>
             );
           })}
         </MapContainer>
