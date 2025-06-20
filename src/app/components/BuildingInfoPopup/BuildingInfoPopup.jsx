@@ -112,11 +112,20 @@
 
 // components/BuildingInfoPopup.jsx
 import { motion } from 'framer-motion';
+import { toast } from 'react-hot-toast';
+import clsx from 'clsx'; // (IMPROVEMENT) Import clsx untuk className yang lebih bersih
+import { FaRegCopy, FaCheck, FaStreetView } from 'react-icons/fa'; // (IMPROVEMENT) Import ikon
 import centroid from '@turf/centroid';
 import { useState } from 'react';
 
+const COPY_STATE = {
+    IDLE: 'Copy coor',
+    SUCCESS: 'Copying!',
+    ERROR: 'Failed!',
+  };
+
 const BuildingInfoPopup = ({ info }) => {
-    const [copyStatus, setCopyStatus] = useState('Copy Coor');
+    const [copyStatus, setCopyStatus] = useState(COPY_STATE.IDLE);
     // 1. Cek dasar apakah `info` dan `info.geom` ada
     if (!info || !info.geom) {
         console.error("Data 'info' atau 'info.geom' tidak ditemukan.", info);
@@ -202,26 +211,68 @@ const BuildingInfoPopup = ({ info }) => {
   const centerCoords = centerPoint.geometry.coordinates;
 
   // Fungsi untuk menyalin koordinat
-  const handleCopyCoords = () => {
-    const coordsString = `${centerCoords[1]}, ${centerCoords[0]}`;
+//   const handleCopyCoords = () => {
+//     const coordsString = `${centerCoords[1]}, ${centerCoords[0]}`;
     
-    // Gunakan .then() dan .catch() untuk penanganan yang lebih baik
-    navigator.clipboard.writeText(coordsString).then(() => {
-      // 3. Jika berhasil, ubah status
-      setCopyStatus('Copying!');
-      // Kembalikan ke semula setelah 2 detik
-      setTimeout(() => {
-        setCopyStatus('Copy Coor');
-      }, 2000);
-    }).catch(err => {
-      // Jika gagal, beri tahu pengguna
-      console.error('Gagal menyalin:', err);
-      setCopyStatus('Failed!');
-       setTimeout(() => {
-        setCopyStatus('Copy Coor');
-      }, 2000);
-    });
-  };
+//     // Gunakan .then() dan .catch() untuk penanganan yang lebih baik
+//     navigator.clipboard.writeText(coordsString).then(() => {
+//       // 3. Jika berhasil, ubah status
+//       setCopyStatus('Copying!');
+//       // Kembalikan ke semula setelah 2 detik
+//       setTimeout(() => {
+//         setCopyStatus('Copy Coor');
+//       }, 2000);
+//     }).catch(err => {
+//       // Jika gagal, beri tahu pengguna
+//       console.error('Gagal menyalin:', err);
+//       setCopyStatus('Failed!');
+//        setTimeout(() => {
+//         setCopyStatus('Copy Coor');
+//       }, 2000);
+//     });
+//   };
+
+// (IMPROVEMENT) Logika copy yang disederhanakan
+    const handleCopyCoords = () => {
+        // Jangan lakukan apa-apa jika sedang dalam proses copy/sukses/gagal
+        if (copyStatus !== COPY_STATE.IDLE) return;
+        
+        const coordsString = `${centerCoords[1]}, ${centerCoords[0]}`;
+
+        const resetStatus = () => setTimeout(() => setCopyStatus(COPY_STATE.IDLE), 2000);
+
+        // Coba metode modern
+        if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(coordsString).then(() => {
+            toast.success('Koordinat berhasil disalin!');
+            setCopyStatus(COPY_STATE.SUCCESS);
+            resetStatus();
+        }).catch(err => {
+            toast.error('Gagal menyalin.');
+            setCopyStatus(COPY_STATE.ERROR);
+            resetStatus();
+        });
+        } else {
+        // Metode fallback
+        const textArea = document.createElement('textarea');
+        textArea.value = coordsString;
+        textArea.style.position = 'absolute';
+        textArea.style.left = '-9999px';
+        document.body.appendChild(textArea);
+        textArea.select();
+        try {
+            document.execCommand('copy');
+            toast.success('Koordinat berhasil disalin!');
+            setCopyStatus(COPY_STATE.SUCCESS);
+        } catch (err) {
+            toast.error('Gagal menyalin.');
+            setCopyStatus(COPY_STATE.ERROR);
+        } finally {
+            document.body.removeChild(textArea);
+            resetStatus();
+        }
+        }
+    };
 
   return (
     <motion.div
@@ -257,7 +308,7 @@ const BuildingInfoPopup = ({ info }) => {
           </motion.div>
 
           {/* Tombol Aksi dengan animasi */}
-          <motion.div variants={itemVariants} className="mt-4 pt-3 border-t border-gray-200 flex space-x-3">
+          {/* <motion.div variants={itemVariants} className="mt-4 pt-3 border-t border-gray-200 flex space-x-3">
             <a
               href={`https://www.google.com/maps?q&layer=c&cbll=${centerCoords[1]},${centerCoords[0]}`}
               target="_blank"
@@ -276,6 +327,27 @@ const BuildingInfoPopup = ({ info }) => {
                 disabled={copyStatus !== 'Copy Coor'}
             >
                 {copyStatus}
+            </button>
+          </motion.div> */}
+          <motion.div variants={itemVariants} className="mt-4 pt-3 border-t border-gray-200 flex space-x-3">
+            <a href={`https://www.google.com/maps?q&layer=c&cbll=${centerCoords[1]},${centerCoords[0]}`} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center flex-1 text-sm bg-blue-500 hover:bg-blue-600 text-white font-semibold py-1.5 px-3 rounded-md transition-all shadow-sm hover:shadow-md">
+              <FaStreetView className="mr-2" /> Street view
+            </a>
+            <button
+              onClick={handleCopyCoords}
+              disabled={copyStatus !== COPY_STATE.IDLE}
+              // (IMPROVEMENT) Menggunakan clsx untuk className yang lebih rapi
+              className={clsx(
+                "flex items-center justify-center flex-1 text-sm text-white font-semibold py-1.5 px-3 rounded-md transition-all duration-300 shadow-sm",
+                {
+                  'bg-green-500': copyStatus === COPY_STATE.SUCCESS,
+                  'bg-red-500': copyStatus === COPY_STATE.ERROR,
+                  'bg-gray-500 hover:bg-gray-600': copyStatus === COPY_STATE.IDLE,
+                }
+              )}
+            >
+              {copyStatus === COPY_STATE.SUCCESS ? <FaCheck className="mr-2" /> : <FaRegCopy className="mr-2" />}
+              {copyStatus}
             </button>
           </motion.div>
         </div>
