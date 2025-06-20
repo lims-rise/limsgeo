@@ -45,6 +45,11 @@ body,
   font-weight: bolder;
 }
 
+/* Menambahkan transisi pada semua layer interaktif Leaflet */
+.leaflet-interactive {
+  transition: all 0.2s ease-in-out;
+}
+
 
 /* Tailwind Custom Scrollbar */
 @layer components {

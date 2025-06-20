@@ -116,7 +116,7 @@ import centroid from '@turf/centroid';
 import { useState } from 'react';
 
 const BuildingInfoPopup = ({ info }) => {
-    const [copyStatus, setCopyStatus] = useState('Copy Koor.');
+    const [copyStatus, setCopyStatus] = useState('Copy Coor');
     // 1. Cek dasar apakah `info` dan `info.geom` ada
     if (!info || !info.geom) {
         console.error("Data 'info' atau 'info.geom' tidak ditemukan.", info);
@@ -208,17 +208,17 @@ const BuildingInfoPopup = ({ info }) => {
     // Gunakan .then() dan .catch() untuk penanganan yang lebih baik
     navigator.clipboard.writeText(coordsString).then(() => {
       // 3. Jika berhasil, ubah status
-      setCopyStatus('Tersalin!');
+      setCopyStatus('Copying!');
       // Kembalikan ke semula setelah 2 detik
       setTimeout(() => {
-        setCopyStatus('Copy Koor.');
+        setCopyStatus('Copy Coor');
       }, 2000);
     }).catch(err => {
       // Jika gagal, beri tahu pengguna
       console.error('Gagal menyalin:', err);
-      setCopyStatus('Gagal!');
+      setCopyStatus('Failed!');
        setTimeout(() => {
-        setCopyStatus('Copy Koor.');
+        setCopyStatus('Copy Coor');
       }, 2000);
     });
   };
@@ -270,10 +270,10 @@ const BuildingInfoPopup = ({ info }) => {
                 onClick={handleCopyCoords}
                 // 4. Buat style dan teks tombol menjadi dinamis
                 className={`flex-1 text-center text-sm text-white font-semibold py-1.5 px-3 rounded-md transition-all duration-300 shadow-sm hover:shadow-md ${
-                copyStatus === 'Tersalin!' ? 'bg-green-500' : 'bg-gray-500 hover:bg-gray-600'
+                copyStatus === 'Copying!' ? 'bg-green-500' : 'bg-gray-500 hover:bg-gray-600'
                 }`}
                 // Nonaktifkan tombol saat proses copy berlangsung untuk mencegah klik ganda
-                disabled={copyStatus !== 'Copy Koor.'}
+                disabled={copyStatus !== 'Copy Coor'}
             >
                 {copyStatus}
             </button>
